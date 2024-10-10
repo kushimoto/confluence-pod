@@ -1,0 +1,12 @@
+[Unit]
+Description=confluence Pod
+
+[Kube]
+Yaml=/opt/confluence-pod/confluence-pod.yaml
+Network=slirp4netns
+
+[Service]
+Environment="PULL_POLICY=never"
+
+[Install]
+WantedBy=network-online.target

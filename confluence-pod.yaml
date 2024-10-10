@@ -1,0 +1,63 @@
+# Save the output of this file and use kubectl create -f to import
+# it into Kubernetes.
+#
+# Created with podman-4.9.4-rhel
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    bind-mount-options: /opt/confluence-pod/data/app:Z
+  creationTimestamp: "2024-10-10T12:52:12Z"
+  labels:
+    app: confluence
+  name: confluence
+spec:
+  containers:
+  - args:
+    - postgres
+    env:
+    - name: POSTGRES_USER
+      value: confluence
+    - name: POSTGRES_PASSWORD
+      value: confluence
+    - name: POSTGRES_DB
+      value: confluence
+    image: docker.io/library/postgres:16.4-bullseye
+    name: db
+    ports:
+    - containerPort: 8090
+      hostPort: 8090
+    - containerPort: 8091
+      hostPort: 8091
+    volumeMounts:
+    - mountPath: /var/lib/postgresql/data
+      name: opt-confluence-pod-data-db-host-0
+  - args:
+    - /entrypoint.py
+    env:
+    - name: ATL_DB_SCHEMA_NAME
+      value: public
+    - name: ATL_JDBC_USER
+      value: confluence
+    - name: ATL_JDBC_URL
+      value: jdbc:postgresql://127.0.0.1:5432/confluence
+    - name: ATL_DB_DRIVER
+      value: org.postgresql.Driver
+    - name: ATL_JDBC_PASSWORD
+      value: confluence
+    - name: ATL_DB_TYPE
+      value: postgresql
+    image: docker.io/atlassian/confluence:9.1-ubuntu-jdk21
+    name: app
+    volumeMounts:
+    - mountPath: /var/atlassian/application-data/confluence
+      name: opt-confluence-pod-data-app-host-0
+  volumes:
+  - hostPath:
+      path: /opt/confluence-pod/data/db
+      type: Directory
+    name: opt-confluence-pod-data-db-host-0
+  - hostPath:
+      path: /opt/confluence-pod/data/app
+      type: Directory
+    name: opt-confluence-pod-data-app-host-0
